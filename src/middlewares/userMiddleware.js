@@ -30,6 +30,7 @@ async function middlewareUpdateUserById(req, res, next) {
                 message: `🔴 Usuário Não encontrado! 😰`
             })
         }
+
         next();
     } catch (error) {
         res.status(400).send({

@@ -1,5 +1,5 @@
-const imageModel = require('../models/imageModels')
-const productModel = require('../models/productsModel')
+const Product = require('../models/productsModel'); // Modelo Product
+const ProductImg = require('../models/imageModels'); // Modelo ProductImg
 
 
 const createImage = async (req, res) => {
@@ -27,29 +27,30 @@ const createImage = async (req, res) => {
 };
 
 
-const getalltenis = async(req,res) => {
-   try{
-         const tennis = await productModel.findAll({
-            include: [{
-                model: imageModel,
-                as: 'images',  // Certifique-se de usar o alias correto ('images')
-                where: { enabled: true },  // Filtra as imagens habilitadas
-                attributes: ['path'],  // Pega apenas o caminho da imagem
-            }]
-        });
+
+    const getAllProducts = async (req, res) => {
+        try {
+            // Buscar todos os produtos com suas imagens associadas
+            const products = await Product.findAll({
+                attributes: ['id', 'name', 'slug', 'description', 'price', 'price_with_discount'],
+                include: [{
+                    model: ProductImg,
+                    as: 'images',  // Usando o alias que definimos na associação
+                    attributes: ['id', 'path','product_id'],
+                }],
+            });
     
-            // Verifica se há produtos
-            if (!tennis || tennis.length === 0) {
-                return res.status(404).send({ message: 'Nenhum tênis encontrado.' });
+            if (products.length === 0) {
+                return res.status(404).send({ error: 'Nenhum produto encontrado.' });
             }
     
-            // Responde com os dados encontrados
-            res.status(200).send({ tennis });
+            res.status(200).send({ data: products });
         } catch (error) {
             console.error(error);
-            res.status(500).send({ error: 'Erro ao buscar os tênis.' });
+            res.status(500).send({ error: 'Erro ao buscar produtos.' });
         }
     };
     
 
-module.exports = { createImage, getalltenis };
+
+module.exports = { createImage, getAllProducts };
