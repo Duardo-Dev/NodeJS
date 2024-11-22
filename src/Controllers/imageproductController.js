@@ -50,7 +50,36 @@ const createImage = async (req, res) => {
             res.status(500).send({ error: 'Erro ao buscar produtos.' });
         }
     };
+    const getProductById = async (req, res) => {
+        try {
+            // Obter o ID do produto a partir dos parâmetros da requisição
+            const { id } = req.params;
+    
+            // Buscar o produto pelo ID, incluindo as imagens associadas
+            const product = await Product.findOne({
+                where: { id },
+                attributes: ['id', 'name', 'slug', 'description', 'price', 'price_with_discount'],
+                include: [{
+                    model: ProductImg,
+                    as: 'images', // Usando o alias definido na associação
+                    attributes: ['id', 'path', 'product_id'],
+                }],
+            });
+    
+            // Verificar se o produto foi encontrado
+            if (!product) {
+                return res.status(404).send({ error: 'Produto não encontrado.' });
+            }
+    
+            // Enviar o produto encontrado na resposta
+            res.status(200).send({ data: product });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: 'Erro ao buscar o produto.' });
+        }
+    };
+   
     
 
 
-module.exports = { createImage, getAllProducts };
+module.exports = { createImage, getAllProducts ,getProductById};
